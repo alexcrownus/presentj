@@ -1,0 +1,47 @@
+PresentJ Example
+10 Oct 2016
+Tags: go present presentj java
+
+Adesegun Adeyemo
+adesegun.adeyemo@interswitchgroup.com
+http://www.interswitch.com
+@alexcrownus
+
+* Who is this guy?
+- Programming addict
+- c, java, swift, go, spring, emv, blockchain
+- Head, Research and Development, Interswitch Limited
+.link http://www.interswitch.com Interswitch Limited
+
+* What is PresentJ?
+
+PresentJ is a library for Present tool from the Go team at Google allowing you to be able to run Java snippets and unit tests.
+
+Present displays slide presentations and articles.
+
+It runs a web server that presents slide and article files from the current directory.
+
+For further information see...
+.link https://github.com/adesegun/presentj PresentJ
+.link https://godoc.org/golang.org/x/tools/present Present
+
+.play -edit main.go /{start/,/end}/
+
+* Installation
+- Download and install Go
+.link https://golang.org/dl/ Go
+- Install Present tool
+    go get golang.org/x/tools/cmd/present
+- Install PresentJ library
+    go get https://github.com/adesegun/presentj
+* Run Java code
+.code java.go
+.play java.go /{start/,/end}/
+
+* Run Java code using Maven
+.code maven.go
+.play maven.go /{start/,/end}/
+
+* Run Java Unit Test using Maven
+.code unitest.go
+.play unitest.go /{start/,/end}/
