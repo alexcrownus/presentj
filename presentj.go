@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 const working = false
@@ -17,7 +18,11 @@ func must(s string, err error) string {
 	return s
 }
 
-func JavaExec(file, src string) {
+func JavaExec(src string) {
+	class := className(src)
+	if len(class) == 0 {
+		log.Fatalf("invalid Java source")
+	}
 	workspace, err := ioutil.TempDir("", "presentjava")
 	if err != nil {
 		log.Fatalf("failed to create workspace: %v", err) //create temporary workspace
@@ -28,7 +33,7 @@ func JavaExec(file, src string) {
 		log.Fatalf("failed to create workspace dir structure: %v", err)
 		return
 	}
-	err = ioutil.WriteFile(filepath.Join(workspace, "main", file+".java"), []byte(src), 0666)
+	err = ioutil.WriteFile(filepath.Join(workspace, "main", class+".java"), []byte(src), 0666)
 	if err != nil {
 		log.Fatalf("failed to write java source: %v", err)
 		return
@@ -37,7 +42,7 @@ func JavaExec(file, src string) {
 	// compile java source
 	err = (&exec.Cmd{
 		Path:   must(exec.LookPath("javac")), // lookup javac binary
-		Args:   []string{"javac", filepath.Join("main", file+".java")},
+		Args:   []string{"javac", filepath.Join("main", class+".java")},
 		Dir:    workspace,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
@@ -50,7 +55,7 @@ func JavaExec(file, src string) {
 	// run java snippet
 	err = (&exec.Cmd{
 		Path:   must(exec.LookPath("java")), // lookup java binary
-		Args:   []string{"java", "main." + file},
+		Args:   []string{"java", "main." + class},
 		Dir:    workspace,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
@@ -65,16 +70,32 @@ func JavaExec(file, src string) {
 	}
 }
 
-func MavenExec(file, src string) {
-	maven(file, src, false)
+func MavenExec(src, pomFile string) {
+	maven(src, pomFile, false)
 }
 
-func MavenTest(file, src string) {
-	maven(file, src, true)
+func MavenTest(src, pomFile string) {
+	maven(src, pomFile, true)
 }
 
-func maven(file, src string, test bool) {
-	b, err := ioutil.ReadFile("pom.xml") // read maven pom file from the current directory
+func className(src string) string {
+	fields := strings.Fields(src)
+	var class string
+	for i, s := range fields {
+		if s == "class" {
+			class = fields[i+1]
+			break
+		}
+	}
+	return class
+}
+
+func maven(src, pomFile string, test bool) {
+	class := className(src)
+	if len(class) == 0 {
+		log.Fatalf("invalid Java source")
+	}
+	b, err := ioutil.ReadFile(pomFile) // read maven pom file
 	if err != nil {
 		log.Fatalf("failed to read pom file: %v", err)
 	}
@@ -99,7 +120,7 @@ func maven(file, src string, test bool) {
 		log.Fatalf("failed to write pom file: %v", err)
 		return
 	}
-	err = ioutil.WriteFile(filepath.Join(workspace, "src", folder, "java", folder, file+".java"), []byte(src), 0666) // write java source
+	err = ioutil.WriteFile(filepath.Join(workspace, "src", folder, "java", folder, class+".java"), []byte(src), 0666) // write java source
 	if err != nil {
 		log.Fatalf("failed to write java source: %v", err)
 		return
@@ -109,7 +130,7 @@ func maven(file, src string, test bool) {
 		// run unit test
 		err = (&exec.Cmd{
 			Path:   must(exec.LookPath("mvn")), // lookup maven binary
-			Args:   []string{"mvn", "-q", "-Dtest=" + file, "test"},
+			Args:   []string{"mvn", "-q", "-Dtest=" + class, "test"},
 			Dir:    workspace,
 			Stdout: os.Stdout,
 			Stderr: os.Stderr,
@@ -137,7 +158,7 @@ func maven(file, src string, test bool) {
 	// run maven project
 	err = (&exec.Cmd{
 		Path:   must(exec.LookPath("mvn")), // lookup maven binary
-		Args:   []string{"mvn", "-q", "exec:java", "-Dexec.mainClass=main." + file},
+		Args:   []string{"mvn", "-q", "exec:java", "-Dexec.mainClass=main." + class},
 		Dir:    workspace,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,

@@ -1,9 +1,9 @@
 package main
 
-import "github.com/adesegun/presentj"
+import "github.com/alexcrownus/presentj"
 
 func main() {
-	presentj.MavenTest("Sample", `
+	presentj.MavenTest(`
 		package test;
 		import org.junit.Test;
 		import static org.assertj.core.api.Assertions.assertThat;
@@ -16,5 +16,5 @@ func main() {
 		    }
 		    // end} OMIT
 		}
-`)
+`, "example/pom.xml")
 }

@@ -1,9 +1,9 @@
 package main
 
-import "github.com/adesegun/presentj"
+import "github.com/alexcrownus/presentj"
 
 func main() {
-	presentj.JavaExec("Test", `
+	presentj.JavaExec(`
 		// {start OMIT
 		package main;
 		public class Test {

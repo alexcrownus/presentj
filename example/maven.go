@@ -1,9 +1,9 @@
 package main
 
-import "github.com/adesegun/presentj"
+import "github.com/alexcrownus/presentj"
 
 func main() {
-	presentj.MavenExec("Test", `
+	presentj.MavenExec(`
 		// {start OMIT
 		package main;
 		public class Test {
@@ -12,5 +12,5 @@ func main() {
 			}
 		}
 		// end} OMIT
-`)
+`, "example/pom.xml")
 }
